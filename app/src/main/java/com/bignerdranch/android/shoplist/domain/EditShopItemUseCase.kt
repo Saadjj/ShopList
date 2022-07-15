@@ -5,7 +5,7 @@ class EditShopItemUseCase(private val shopListRepository: ShopListRepository) {
     /**
      * редактирование списка покупок
      */
-    fun editShopItemUseCase(shopItem: ShopItem) {
+    fun editShopItem(shopItem: ShopItem) {
         shopListRepository.editShopItemUseCase(shopItem)
     }
 }

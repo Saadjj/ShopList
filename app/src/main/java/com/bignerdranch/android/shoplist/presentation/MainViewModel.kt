@@ -29,12 +29,18 @@ class MainViewModel : ViewModel() {
 
     //это хранилище данных, работающее по паттерну Наблюдатель
     //   в него можно положить какой-либо объект, или подписаться и получить положенный объект
-    val shopList = MutableLiveData<List<ShopItem>>()
+    val shopList = getShopListUseCase.getShopList()
 
-//получение списка из юзкейса в дата слое и перенос его в мутабл лайв дейт
-    fun getShopList(){
-        val list= getShopListUseCase.getShopList()
-        shopList.value=list
+
+
+    fun deleteShopItem(shopItem: ShopItem) {
+        deleteShopItemUseCase.deleteShopItem(shopItem)
+
     }
 
+    fun changeEnableState(shopItem: ShopItem) {
+        val newItem = shopItem.copy(enabled = !shopItem.enabled)
+        editShopItemUseCase.editShopItem(newItem)
+
+    }
 }

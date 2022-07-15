@@ -1,5 +1,8 @@
 package com.bignerdranch.android.shoplist.domain
 
+import androidx.lifecycle.LiveData
+
+
 /**
  * умеет (абстрактно) работать с данными для domain слоя
  * по типу черной коробки
@@ -15,6 +18,6 @@ interface ShopListRepository {
 
     fun editShopItemUseCase(shopItem: ShopItem)
 
-    fun getShopList():List<ShopItem>
+    fun getShopList(): LiveData<List<ShopItem>>
 
 }

@@ -1,5 +1,7 @@
 package com.bignerdranch.android.shoplist.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.bignerdranch.android.shoplist.domain.ShopListRepository
 import java.lang.RuntimeException
@@ -8,6 +10,9 @@ import java.lang.RuntimeException
  * реализация репозитория из domain-слоя(упрощенная, может позже подрубить БД)
  */
 object  ShopListRepositoryImpl:ShopListRepository {
+
+    private val shopListLD=MutableLiveData<List<ShopItem>>()
+
     /**
      * место где храниться список покупок
      */
@@ -17,6 +22,13 @@ object  ShopListRepositoryImpl:ShopListRepository {
      */
     private var autoIncrementID=0
 
+    init{
+        for(i in 0 until 10){
+            val item=ShopItem("Name $i", i, true )
+            addShopItem(item)
+        }
+    }
+
     /**
      * добавление покупки
      */
@@ -25,6 +37,7 @@ object  ShopListRepositoryImpl:ShopListRepository {
             shopItem.id= autoIncrementID++
         }//делается проврека , чтобы в editshopitem не возникало ошибки
         shopList.add(shopItem)
+        updateList()
 
     }
 
@@ -33,6 +46,7 @@ object  ShopListRepositoryImpl:ShopListRepository {
      */
     override fun deleteShopItem(shopItem: ShopItem) {
         shopList.remove(shopItem)
+        updateList()
     }
 
     /**
@@ -52,13 +66,22 @@ object  ShopListRepositoryImpl:ShopListRepository {
        val oldElement= getShopItem(shopItem.id)
         shopList.remove(oldElement)
         addShopItem(shopItem)
+
     }
 
     /**
      * получение списка покупок
      */
-    override fun getShopList(): List<ShopItem> {
-        //метод toList вызывается для создания копии коллекции, иначе ее можно будет редактировать из любого места программы
-        return shopList.toList()
+    override fun getShopList(): LiveData<List<ShopItem>> {
+
+        return shopListLD
+    }
+
+    /**
+     * метод обновления изменяемой лайв даты
+     */
+    //возвращаем копию для того чтобы с ним нельзя было баловаться извне
+    private fun updateList(){
+        shopListLD.value= shopList.toList()
     }
 }
