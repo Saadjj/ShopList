@@ -16,7 +16,8 @@ object  ShopListRepositoryImpl:ShopListRepository {
     /**
      * место где храниться список покупок
      */
-    private val shopList= mutableListOf<ShopItem>()
+    //сортированный список с компаратором
+    private val shopList= sortedSetOf<ShopItem>({ p0, p1 -> p0.id.compareTo(p1.id) })
     /**
      * хранит айдишник элементов коллекции
      */
