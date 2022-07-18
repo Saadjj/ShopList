@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ilev/AndroidStudioProjects/ShopList/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1375" />
         <entry key="..\:/Users/ilev/AndroidStudioProjects/ShopList/app/src/main/res/layout/activity_main.xml" value="0.1762917933130699" />
+        <entry key="..\:/Users/ilev/AndroidStudioProjects/ShopList/app/src/main/res/layout/item_shop_disabled.xml" value="0.15092592592592594" />
+        <entry key="..\:/Users/ilev/AndroidStudioProjects/ShopList/app/src/main/res/layout/item_shop_enabled.xml" value="0.15092592592592594" />
       </map>
     </option>
   </component>
