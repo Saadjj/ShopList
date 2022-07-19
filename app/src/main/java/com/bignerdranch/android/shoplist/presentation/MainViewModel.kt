@@ -32,12 +32,17 @@ class MainViewModel : ViewModel() {
     val shopList = getShopListUseCase.getShopList()
 
 
-
+    /**
+     * удаление покупки из списка
+     */
     fun deleteShopItem(shopItem: ShopItem) {
         deleteShopItemUseCase.deleteShopItem(shopItem)
 
     }
 
+    /**
+     * измение статуса покупки
+     */
     fun changeEnableState(shopItem: ShopItem) {
         val newItem = shopItem.copy(enabled = !shopItem.enabled)
         editShopItemUseCase.editShopItem(newItem)

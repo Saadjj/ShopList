@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.bignerdranch.android.shoplist.domain.ShopListRepository
 import java.lang.RuntimeException
+import kotlin.random.Random
 
 /**
  * реализация репозитория из domain-слоя(упрощенная, может позже подрубить БД)
@@ -24,8 +25,8 @@ object  ShopListRepositoryImpl:ShopListRepository {
     private var autoIncrementID=0
 
     init{
-        for(i in 0 until 10){
-            val item=ShopItem("Name $i", i, true )
+        for(i in 0 until 1000){
+            val item=ShopItem("Name $i", i, Random.nextBoolean() )
             addShopItem(item)
         }
     }

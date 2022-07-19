@@ -1,16 +1,24 @@
 package com.bignerdranch.android.shoplist.presentation
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.shoplist.R
 import com.bignerdranch.android.shoplist.domain.ShopItem
 
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
 
-    val list = listOf<ShopItem>()
+
+
+    var shopList = listOf<ShopItem>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     // как создать вью
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
@@ -21,16 +29,35 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     // как вставить значения внутри него
     override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) {
-       val shopItem=list[position]
-        viewHolder.tvName.text=shopItem.name
-        viewHolder.tvCount.text=shopItem.count.toString()
-        viewHolder.view.setOnLongClickListener{
+        val shopItem = shopList[position]
+
+        val status = if (shopItem.enabled) {
+            "Active"
+        } else {
+            "Not active"
+        }
+
+        viewHolder.view.setOnLongClickListener {
             true
+        }
+        //установка цвета
+        //сделать так чтобы использовался нужный макет вьюшки
+        if (shopItem.enabled) {
+            View enabledView
+                )
+            )
+        } else {
+
+                )
+            )
         }
     }
 
+
+
+    //собственно получение колличества итемов
     override fun getItemCount(): Int {
-        return list.size
+        return shopList.size
     }
 
     //реализация вью холдера
