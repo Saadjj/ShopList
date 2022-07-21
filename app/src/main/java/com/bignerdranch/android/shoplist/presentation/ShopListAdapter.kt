@@ -13,46 +13,54 @@ import com.bignerdranch.android.shoplist.domain.ShopItem
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
 
 
-
     var shopList = listOf<ShopItem>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? =null
+//и это
+    var onShopItemClickListener: ((ShopItem) -> Unit)? =null
 
     // как создать вью
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
+        //проверка вьютайпа и выставление  нужного слоя
+        val layout = when (viewType) {
+            VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
+            VIEW_TYPE_ENABLED -> R.layout.item_shop_enabled
+            else -> throw RuntimeException("UnknownViewType:$viewType")
+        }
+
         val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_shop_disabled, parent, false)
+            LayoutInflater.from(parent.context).inflate(layout, parent, false)
         return ShopItemViewHolder(view)
     }
 
-    // как вставить значения внутри него
+    // как вставить значения внутри него(привязка)
     override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) {
         val shopItem = shopList[position]
-
-        val status = if (shopItem.enabled) {
-            "Active"
-        } else {
-            "Not active"
-        }
-
+        //а вообще происходит установка слушателей кликов(читай наблюдателей)
+        //эт тож моя шляпа
+        viewHolder.view.setOnClickListener{
+            onShopItemClickListener?.invoke(shopItem)
+            true       }
         viewHolder.view.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
             true
         }
-        //установка цвета
-        //сделать так чтобы использовался нужный макет вьюшки
-        if (shopItem.enabled) {
-            View enabledView
-                )
-            )
-        } else {
-
-                )
-            )
-        }
+        viewHolder.tvName.text = shopItem.name
+        viewHolder.tvCount.text = shopItem.count.toString()
     }
 
+    //определение типа вьютайпа
+    override fun getItemViewType(position: Int): Int {
+        val item = shopList[position]
+        return if (item.enabled) {
+            VIEW_TYPE_ENABLED
+        } else {
+            VIEW_TYPE_DISABLED
+        }
+    }
 
 
     //собственно получение колличества итемов
@@ -66,5 +74,22 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         val tvCount = view.findViewById<TextView>(R.id.tv_count)
     }
 
+    //создается ибо не стоит напрямую вызывать из адаптреа вью модель
+    interface OnShopItemLongClickListener {
+        fun onShopItemLongClick(shopItem: ShopItem)
+    }
 
+    //моя бурда
+    interface OnShopItemClickListener {
+        fun onShopItemClickListener(shopItem: ShopItem)
+    }
+
+
+    //ициализация дополнительных переменных
+    companion object {
+        const val VIEW_TYPE_ENABLED = 0
+        const val VIEW_TYPE_DISABLED = 1
+
+        const val MAX_POOL_SIZE = 15
+    }
 }

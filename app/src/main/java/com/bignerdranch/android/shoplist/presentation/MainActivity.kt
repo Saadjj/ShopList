@@ -17,8 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     // ссылка на адаптер
-    private lateinit var adapter: ShopListAdapter
-
+    private lateinit var shopListadapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         //подписываемся на объект shoplist
         viewModel.shopList.observe(this) {
             //подписались на адаптер?
-            adapter.shopList = it
+            shopListadapter.shopList = it
         }
     }
 
@@ -36,10 +35,26 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         val rvShopList = findViewById<RecyclerView>(R.id.rv_shop_list)
         //создание адаптера
-        adapter = ShopListAdapter()
+        shopListadapter = ShopListAdapter()
+
         //его установка у recyclerview
-        rvShopList.adapter = adapter
-
-
+        rvShopList.adapter = shopListadapter
+        //настройка пула ресайккдл вьюз
+        rvShopList.recycledViewPool.setMaxRecycledViews(
+            ShopListAdapter.VIEW_TYPE_DISABLED,
+            ShopListAdapter.MAX_POOL_SIZE
+        )
+        rvShopList.recycledViewPool.setMaxRecycledViews(
+            ShopListAdapter.VIEW_TYPE_ENABLED,
+            ShopListAdapter.MAX_POOL_SIZE
+        )
+//место где твориться магия и происходит вызов метода, меняющего аттрибут доступности у шопитема
+        shopListadapter.onShopItemLongClickListener ={
+            viewModel.changeEnableState(it)
+        }
+       shopListadapter.onShopItemClickListener={
+           Log.d("MainActivity",it.toString())
+       }
     }
+
 }
