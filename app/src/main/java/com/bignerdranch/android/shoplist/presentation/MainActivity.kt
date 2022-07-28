@@ -20,27 +20,7 @@ class MainActivity : AppCompatActivity() {
     // ссылка на адаптер
     private lateinit var shopListadapter: ShopListAdapter
 
-    //    добавление отклика на свайп
-    val callback =
-        object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = shopListadapter.shopList[viewHolder.adapterPosition]
-                viewModel.deleteShopItem(item)
-            }
-        }
-
-
+    //    добавление отклика на свайп через анонимный объект
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,12 +52,56 @@ class MainActivity : AppCompatActivity() {
             ShopListAdapter.MAX_POOL_SIZE
         )
 //место где твориться магия и происходит вызов метода, меняющего аттрибут доступности у шопитема
-        shopListadapter.onShopItemLongClickListener = {
-            viewModel.changeEnableState(it)
-        }
+        setUpLongClickListener()
+        setUpClickListener()
+        setupSwipeListener(rvShopList)
+
+    }
+
+    private fun setupSwipeListener(rvShopList: RecyclerView) {
+        val callback =
+            //абстрактный класс
+            object : ItemTouchHelper.SimpleCallback(
+                //поскольку с перемещением не работаем то пердаем 0
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
+                //полськоку он не нужен возрвщаем фолз
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                //получение тиема по которому произошел свайп и удаление его из коллекции
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    //получение элемента
+                    val item = shopListadapter.shopList[viewHolder.adapterPosition]
+                    //удаление элемента
+                    viewModel.deleteShopItem(item)
+                }
+            }
+
+        val itemTouchHelper = ItemTouchHelper(callback)
+        //прикрепление
+        itemTouchHelper.attachToRecyclerView(rvShopList)
+    }
+
+    private fun setUpClickListener() {
         shopListadapter.onShopItemClickListener = {
             Log.d("MainActivity", it.toString())
         }
     }
+
+    private fun setUpLongClickListener() {
+        shopListadapter.onShopItemLongClickListener = {
+            viewModel.changeEnableState(it)
+        }
+    }
+
+
+
 
 }
