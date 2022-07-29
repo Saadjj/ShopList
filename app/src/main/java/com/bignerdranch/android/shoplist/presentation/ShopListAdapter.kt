@@ -2,25 +2,30 @@ package com.bignerdranch.android.shoplist.presentation
 
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ListAdapter
 import com.bignerdranch.android.shoplist.R
 import com.bignerdranch.android.shoplist.domain.ShopItem
 
-class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
+class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCallback()) {
 
+//    var count = 0
 
-    var shopList = listOf<ShopItem>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-    var onShopItemLongClickListener: ((ShopItem) -> Unit)? =null
-//и это
-    var onShopItemClickListener: ((ShopItem) -> Unit)? =null
+    //скрываем, поскольку литс адаптер хранит логику работы со списком
+//    var shopList = listOf<ShopItem>()
+//        set(value) {
+//            //создание каллбэка, который потом передадим
+//            val callback = ShopListDiffCallback(shopList, value)
+//            //проверка списков на однородность,в этом объекте хранятся все изменения
+//            val diffResult = DiffUtil.calculateDiff(callback)
+//            //собственно примение изменений
+//            diffResult.dispatchUpdatesTo(this)
+//            field = value
+//        }
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
+
+    //и это
+    var onShopItemClickListener: ((ShopItem) -> Unit)? = null
 
     // как создать вью
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
@@ -38,12 +43,14 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     // как вставить значения внутри него(привязка)
     override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) {
-        val shopItem = shopList[position]
+//        Log.d("ShopListAdapter", "onBindViewHolder,count:${++count}")
+        val shopItem = getItem(position)
         //а вообще происходит установка слушателей кликов(читай наблюдателей)
         //эт тож моя шляпа
-        viewHolder.view.setOnClickListener{
+        viewHolder.view.setOnClickListener {
             onShopItemClickListener?.invoke(shopItem)
-            true       }
+            true
+        }
         viewHolder.view.setOnLongClickListener {
             onShopItemLongClickListener?.invoke(shopItem)
             true
@@ -54,7 +61,7 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     //определение типа вьютайпа
     override fun getItemViewType(position: Int): Int {
-        val item = shopList[position]
+        val item = getItem(position)
         return if (item.enabled) {
             VIEW_TYPE_ENABLED
         } else {
@@ -62,22 +69,19 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         }
     }
 
-
-    //собственно получение колличества итемов
-    override fun getItemCount(): Int {
-        return shopList.size
-    }
+//опять же из-за лист адаптера он не нужен, лист адаптер сам работает со списком
+//    //собственно получение колличества итемов
+//    override fun getItemCount(): Int {
+//        return shopList.size
+//    }
 
     //реализация вью холдера
-    class ShopItemViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val tvName = view.findViewById<TextView>(R.id.tv_name)
-        val tvCount = view.findViewById<TextView>(R.id.tv_count)
-    }
 
-    //создается ибо не стоит напрямую вызывать из адаптреа вью модель
-    interface OnShopItemLongClickListener {
-        fun onShopItemLongClick(shopItem: ShopItem)
-    }
+
+//    //создается ибо не стоит напрямую вызывать из адаптреа вью модель
+//    interface OnShopItemLongClickListener {
+//        fun onShopItemLongClick(shopItem: ShopItem)
+//    }
 
     //моя бурда
     interface OnShopItemClickListener {

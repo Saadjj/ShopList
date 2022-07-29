@@ -30,7 +30,8 @@ class MainActivity : AppCompatActivity() {
         //подписываемся на объект shoplist
         viewModel.shopList.observe(this) {
             //подписались на адаптер?
-            shopListadapter.shopList = it
+            //при вызове метода сабмит лист вызывается новый поток, в которм происходят все вычисления
+            shopListadapter.submitList(it)
         }
     }
 
@@ -78,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                 //получение тиема по которому произошел свайп и удаление его из коллекции
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     //получение элемента
-                    val item = shopListadapter.shopList[viewHolder.adapterPosition]
+                    val item = shopListadapter.currentList[viewHolder.adapterPosition]
                     //удаление элемента
                     viewModel.deleteShopItem(item)
                 }
