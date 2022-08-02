@@ -1,5 +1,7 @@
 package com.bignerdranch.android.shoplist.presentation
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bignerdranch.android.shoplist.data.ShopListRepositoryImpl
 import com.bignerdranch.android.shoplist.domain.AddShopItemUseCase
@@ -14,29 +16,59 @@ class ShopItemViewModel : ViewModel() {
 
     private val getShopItemUseCase = GetShopItemUseCase(repository)
     private val addShopItemUseCase = AddShopItemUseCase(repository)
-    private val editeShopItemUseCase = EditShopItemUseCase(repository)
+    private val editShopItemUseCase = EditShopItemUseCase(repository)
 
-    val shopList = getShopItemUseCase.getShopItem(1)
+    /**
+     * объект LiveDate, используемый для отображения ошибок имени
+     */
+    //делаем ее приватной и вообще заморачиваемся с геттером ради того чтобы
+    // ее невозможно было изменить извне класса
+    private val _errorInputName = MutableLiveData<Boolean>()
+    //часть заморочки-извне только получаем но не меняем
+    val errorInputName: LiveData<Boolean>
+        get() = _errorInputName
 
+    /**
+     * объект LiveDate, используемый для отображения ошибок счета
+     */
+    // то же что и другая переменная
+    private val _errorInputCount = MutableLiveData<Boolean>()
+    val errorInputCount: LiveData<Boolean>
+        get() = _errorInputCount
+
+    /**
+     * получение объекта покупок
+     */
     fun getShopItem(shopItemId: Int) {
         val item = getShopItemUseCase.getShopItem(shopItemId)
     }
 
-
+    /**
+     * добавление списка покупок
+     */
     fun addShopItem(inputName: String?, inputCount: String?) {
         val name = parseName(inputName)
         val count = parseCount(inputCount)
-
         //проверка на валидность данных
-        val fieldValid=validateInput(name,count)
-        if(fieldValid){
-            val shopItem=ShopItem(name,count,true)
+        val fieldValid = validateInput(name, count)
+        if (fieldValid) {
+            val shopItem = ShopItem(name, count, true)
             addShopItemUseCase.addShopItem(shopItem)
         }
     }
 
-    fun editeShopItem(shopItem: ShopItem) {
-        editeShopItemUseCase.editShopItem(shopItem)
+    /**
+     * редкатирование списка покупок
+     */
+    fun editShopItem(inputName: String?, inputCount: String?) {
+        val name = parseName(inputName)
+        val count = parseCount(inputCount)
+        //проверка на валидность данных
+        val fieldValid = validateInput(name, count)
+        if (fieldValid) {
+            val shopItem = ShopItem(name, count, true)
+            editShopItemUseCase.editShopItem(shopItem)
+        }
     }
 
     /**
@@ -65,15 +97,29 @@ class ShopItemViewModel : ViewModel() {
         var result = true
         //если строка пуста то
         if (name.isBlank()) {
-            //TODO: show error input name
+            _errorInputName.value = true
             result = false
         }
         if (count <= 0) {
-            //TODO: show error input count
+            _errorInputCount.value = true
             result = false
         }
         return result
-
-
     }
+
+    /**
+     * сброс ошибки
+     */
+    private fun resetErrorInputName() {
+        _errorInputName.value = true
+    }
+
+    /**
+     * сброс имени
+     */
+    private fun resetErrorInputCount() {
+        _errorInputName.value = true
+    }
+
+
 }

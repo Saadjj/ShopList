@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * установка обработчика кликов
+     */
     private fun setupSwipeListener(rvShopList: RecyclerView) {
         val callback =
             //абстрактный класс
