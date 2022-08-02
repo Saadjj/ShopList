@@ -26,8 +26,13 @@ class ShopItemViewModel : ViewModel() {
     fun addShopItem(inputName: String?, inputCount: String?) {
         val name = parseName(inputName)
         val count = parseCount(inputCount)
-        shopItem:ShopItem = new ShopItem
-        addShopItemUseCase.addShopItem(name, count)
+
+        //проверка на валидность данных
+        val fieldValid=validateInput(name,count)
+        if(fieldValid){
+            val shopItem=ShopItem(name,count,true)
+            addShopItemUseCase.addShopItem(shopItem)
+        }
     }
 
     fun editeShopItem(shopItem: ShopItem) {
@@ -60,9 +65,11 @@ class ShopItemViewModel : ViewModel() {
         var result = true
         //если строка пуста то
         if (name.isBlank()) {
+            //TODO: show error input name
             result = false
         }
         if (count <= 0) {
+            //TODO: show error input count
             result = false
         }
         return result
