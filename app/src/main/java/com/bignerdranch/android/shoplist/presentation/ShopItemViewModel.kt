@@ -24,6 +24,7 @@ class ShopItemViewModel : ViewModel() {
     //делаем ее приватной и вообще заморачиваемся с геттером ради того чтобы
     // ее невозможно было изменить извне класса
     private val _errorInputName = MutableLiveData<Boolean>()
+
     //часть заморочки-извне только получаем но не меняем
     val errorInputName: LiveData<Boolean>
         get() = _errorInputName
@@ -36,11 +37,24 @@ class ShopItemViewModel : ViewModel() {
     val errorInputCount: LiveData<Boolean>
         get() = _errorInputCount
 
+    //создание муты для ShopItema
+    private val _shopItem = MutableLiveData<ShopItem>()
+    val shopItem: LiveData<ShopItem>
+        get() = _shopItem
+
+    /**
+     * переменная закрытия экрана
+     *///unit - эт что-то на продвитом
+    private val _flagScrenClosing=MutableLiveData<Unit>()
+    val flagScreenClosing: LiveData<Unit>
+    get()=_flagScrenClosing
+
     /**
      * получение объекта покупок
      */
     fun getShopItem(shopItemId: Int) {
         val item = getShopItemUseCase.getShopItem(shopItemId)
+        _shopItem.value = item
     }
 
     /**
@@ -54,7 +68,10 @@ class ShopItemViewModel : ViewModel() {
         if (fieldValid) {
             val shopItem = ShopItem(name, count, true)
             addShopItemUseCase.addShopItem(shopItem)
+            screnClosing()
         }
+
+
     }
 
     /**
@@ -66,9 +83,20 @@ class ShopItemViewModel : ViewModel() {
         //проверка на валидность данных
         val fieldValid = validateInput(name, count)
         if (fieldValid) {
-            val shopItem = ShopItem(name, count, true)
-            editShopItemUseCase.editShopItem(shopItem)
+          _shopItem.value?.let {
+              val item=it.copy(name=name,count=count)
+              editShopItemUseCase.editShopItem(item)
+              screnClosing()
+          }
+
         }
+    }
+
+    /**
+     * передаем unit якобы из-за того что что этот объект больше не будем использовать в activity
+     */
+    private fun screnClosing() {
+        _flagScrenClosing.value =Unit
     }
 
     /**

@@ -1,16 +1,17 @@
 package com.bignerdranch.android.shoplist.presentation
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.shoplist.R
-import com.bignerdranch.android.shoplist.domain.ShopItem
+import com.bignerdranch.android.shoplist.presentation.ShopItemActivity.Companion.EXTRA_SCREEN_MODE
+import com.bignerdranch.android.shoplist.presentation.ShopItemActivity.Companion.MODE_ADD
+import com.bignerdranch.android.shoplist.presentation.ShopItemActivity.Companion.MODE_EDIT
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +33,15 @@ class MainActivity : AppCompatActivity() {
             //подписались на адаптер?
             //при вызове метода сабмит лист вызывается новый поток, в которм происходят все вычисления
             shopListadapter.submitList(it)
+        }
+        //добавление кнопки добавления ShopItem
+        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
+        //добавление слушателя кликов
+        buttonAddItem.setOnClickListener {
+            //создание нового экрана
+            val intent = ShopItemActivity.newIntentAddItem(this)
+                //запускаем
+            startActivity(intent)
         }
     }
 
@@ -96,6 +106,12 @@ class MainActivity : AppCompatActivity() {
     private fun setUpClickListener() {
         shopListadapter.onShopItemClickListener = {
             Log.d("MainActivity", it.toString())
+            //создание нового экрана
+            val intent = Intent(this, ShopItemActivity::class.java)
+            //передаем режим работы экрана в режиме редактирования
+            intent.putExtra(EXTRA_SCREEN_MODE, MODE_EDIT)
+            //запускаем
+            startActivity(intent)
         }
     }
 
@@ -104,8 +120,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.changeEnableState(it)
         }
     }
-
-
 
 
 }
