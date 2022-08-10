@@ -3,6 +3,8 @@ package com.bignerdranch.android.shoplist.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -34,19 +36,72 @@ class ShopItemActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
         //инициализация вьюшек
         initViews()
-        //настройка экрана, еслижо этоговсе ок
+        //при изменении текста убираем исключение от пользователя
+        etName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
+        //настройка экрана, если до этого все ок
         when (screenMode) {
             MODE_EDIT -> launchEditMode()
             MODE_ADD -> launchAddMode()
         }
+
     }
-//подписаться на нужын еобъеты лайвдаты
+
+    private fun observeViewModel(){
+        //подписываемся на объект ошибки числа
+        viewModel.errorInputCount.observe(this) {
+            val message = if (it) {
+                getString(R.string.error_input_count)
+            } else {
+                null
+            }
+            tilCount.error = message
+        }
+        //подписываемся на объект ошибки ввода имени
+        viewModel.errorInputName.observe(this) {
+            val message = if (it) {
+                getString(R.string.error_input_name)
+            } else {
+                null
+            }
+            tilName.error = message
+        }
+        //закрываем экран
+        viewModel.shouldCloseScreen.observe(this) {
+            finish()
+        }
+    }
+
+    //подписаться на нужын еобъеты лайвдаты
     private fun launchEditMode() {
-        //TODO
+        //получение собственно итема
+        viewModel.getShopItem(shopItemId)
+        //а теперь подписаны на него, и устанавливаем нужные значения
+        viewModel.shopItem.observe(this) {
+            etName.setText(it.name)
+            etCount.setText(it.count.toString())
+        }
+        buttonSave.setOnClickListener() {
+            viewModel.editShopItem(etName.text?.toString(), etCount.text?.toString())
+        }
     }
 
     private fun launchAddMode() {
-        //TODO
+        //мощь
+        buttonSave.setOnClickListener() {
+            viewModel.addShopItem(etName.text?.toString(), etCount.text?.toString())
+        }
     }
 
 
