@@ -18,6 +18,9 @@ class ShopItemViewModel : ViewModel() {
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
 
+    private val _shouldCloseScreen = MutableLiveData<Unit>()
+    val shouldCloseScreen: LiveData<Unit>
+        get() = _shouldCloseScreen
     /**
      * объект LiveDate, используемый для отображения ошибок имени
      */
@@ -73,6 +76,7 @@ class ShopItemViewModel : ViewModel() {
 
 
     }
+
 
     /**
      * редкатирование списка покупок
@@ -138,16 +142,23 @@ class ShopItemViewModel : ViewModel() {
     /**
      * сброс ошибки
      */
-    private fun resetErrorInputName() {
-        _errorInputName.value = true
+     fun resetErrorInputName() {
+        _errorInputName.value = false
     }
 
     /**
      * сброс имени
      */
-    private fun resetErrorInputCount() {
-        _errorInputName.value = true
+     fun resetErrorInputCount() {
+        _errorInputName.value = false
     }
+    /**
+     * сброс имени
+     */
+    fun finishWork() {
+        _shouldCloseScreen.value = Unit
+    }
+
 
 
 }

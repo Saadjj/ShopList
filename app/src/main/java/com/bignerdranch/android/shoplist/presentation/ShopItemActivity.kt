@@ -36,6 +36,22 @@ class ShopItemActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
         //инициализация вьюшек
         initViews()
+        addChangeTextListeners()
+
+        //настройка экрана, если до этого все ок
+        launchRightMode()
+        observeViewModel()
+    }
+
+    private fun launchRightMode() {
+        when (screenMode) {
+            MODE_EDIT -> launchEditMode()
+            MODE_ADD -> launchAddMode()
+        }
+    }
+
+
+    private fun addChangeTextListeners(){
         //при изменении текста убираем исключение от пользователя
         etName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -43,21 +59,28 @@ class ShopItemActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                TODO("Not yet implemented")
+                viewModel.resetErrorInputName()
             }
 
             override fun afterTextChanged(p0: Editable?) {
 
             }
         })
-        //настройка экрана, если до этого все ок
-        when (screenMode) {
-            MODE_EDIT -> launchEditMode()
-            MODE_ADD -> launchAddMode()
-        }
 
+        etCount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.resetErrorInputCount()
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
     }
-
     private fun observeViewModel(){
         //подписываемся на объект ошибки числа
         viewModel.errorInputCount.observe(this) {
