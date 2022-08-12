@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     // ссылка на адаптер
-    private lateinit var shopListadapter: ShopListAdapter
+    private lateinit var shopListAdapter: ShopListAdapter
 
     //    добавление отклика на свайп через анонимный объект
 
@@ -23,12 +23,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupRecyclerView()
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        //подписываемся на объект shoplist
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
             //подписались на адаптер?
             //при вызове метода сабмит лист вызывается новый поток, в которм происходят все вычисления
-            shopListadapter.submitList(it)
+            shopListAdapter.submitList(it)
         }
         //добавление кнопки добавления ShopItem
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
@@ -44,26 +43,23 @@ class MainActivity : AppCompatActivity() {
     /**
      * настройка работы Recucler View
      */
-    //это шляра отедьная фигня для нормального тображения списка
+    //это   для нормального отображения списка
     private fun setupRecyclerView() {
         val rvShopList = findViewById<RecyclerView>(R.id.rv_shop_list)
-        //создание адаптера
-        shopListadapter = ShopListAdapter()
-
-        //его установка у recyclerview
-        rvShopList.adapter = shopListadapter
-        //настройка пула ресайккдл вьюз
-        rvShopList.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.VIEW_TYPE_DISABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
-        rvShopList.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.VIEW_TYPE_ENABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
-//место где твориться магия и происходит вызов метода, меняющего аттрибут доступности у шопитема
-        setUpLongClickListener()
-        setUpClickListener()
+        with(rvShopList) {
+            shopListAdapter = ShopListAdapter()
+            adapter = shopListAdapter
+            recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.VIEW_TYPE_ENABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+            recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.VIEW_TYPE_DISABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+        }
+        setupLongClickListener()
+        setupClickListener()
         setupSwipeListener(rvShopList)
 
     }
@@ -91,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                 //получение тиема по которому произошел свайп и удаление его из коллекции
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     //получение элемента
-                    val item = shopListadapter.currentList[viewHolder.adapterPosition]
+                    val item = shopListAdapter.currentList[viewHolder.adapterPosition]
                     //удаление элемента
                     viewModel.deleteShopItem(item)
                 }
@@ -105,8 +101,8 @@ class MainActivity : AppCompatActivity() {
     /**
      * установка обработчика кликов
      */
-    private fun setUpClickListener() {
-        shopListadapter.onShopItemClickListener = {
+    private fun setupClickListener() {
+        shopListAdapter.onShopItemClickListener = {
             Log.d("MainActivity", it.toString())
             //создание нового экрана
             val intent = ShopItemActivity.newIntentEditItem(this, it.id)
@@ -115,8 +111,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUpLongClickListener() {
-        shopListadapter.onShopItemLongClickListener = {
+    private fun setupLongClickListener() {
+        shopListAdapter.onShopItemLongClickListener = {
             viewModel.changeEnableState(it)
         }
     }

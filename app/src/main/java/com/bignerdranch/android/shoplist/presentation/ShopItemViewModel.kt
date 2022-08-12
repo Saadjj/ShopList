@@ -18,9 +18,7 @@ class ShopItemViewModel : ViewModel() {
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
 
-    private val _shouldCloseScreen = MutableLiveData<Unit>()
-    val shouldCloseScreen: LiveData<Unit>
-        get() = _shouldCloseScreen
+
     /**
      * объект LiveDate, используемый для отображения ошибок имени
      */
@@ -45,6 +43,9 @@ class ShopItemViewModel : ViewModel() {
     val shopItem: LiveData<ShopItem>
         get() = _shopItem
 
+    private val _shouldCloseScreen = MutableLiveData<Unit>()
+    val shouldCloseScreen: LiveData<Unit>
+        get() = _shouldCloseScreen
     /**
      * переменная закрытия экрана
      *///unit - эт что-то на продвитом
@@ -71,7 +72,7 @@ class ShopItemViewModel : ViewModel() {
         if (fieldValid) {
             val shopItem = ShopItem(name, count, true)
             addShopItemUseCase.addShopItem(shopItem)
-            screnClosing()
+            finishWork()
         }
 
 
@@ -90,7 +91,7 @@ class ShopItemViewModel : ViewModel() {
           _shopItem.value?.let {
               val item=it.copy(name=name,count=count)
               editShopItemUseCase.editShopItem(item)
-              screnClosing()
+              finishWork()
           }
 
         }
