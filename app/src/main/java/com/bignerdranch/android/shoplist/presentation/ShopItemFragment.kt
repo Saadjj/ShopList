@@ -18,7 +18,12 @@ import com.bignerdranch.android.shoplist.R
 import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
-class ShopItemFragment : Fragment() {
+class ShopItemFragment(
+    private val screenMode: String = MODE_UNKNOWN,
+    private val shopItemId: Int = ShopItem.UNDEFINED_ID
+) : Fragment(
+
+) {
 
     private lateinit var viewModel: ShopItemViewModel
 
@@ -28,8 +33,6 @@ class ShopItemFragment : Fragment() {
     private lateinit var etCount: EditText
     private lateinit var buttonSave: Button
 
-    private var screenMode = MODE_UNKNOWN
-    private var shopItemId = ShopItem.UNDEFINED_ID
 
     //из макета создаем вью, похожий метод был у Recicler view
     override fun onCreateView(
@@ -42,15 +45,15 @@ class ShopItemFragment : Fragment() {
         )
     }
 
-    //вьюшка уже точно создана и  снет можно спокойно работать
+    //вьюшка уже точно создана и  сней можно спокойно работать
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //проверка
-        parseIntent()
+        parseParams()
         //инициализация вьюмодели
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
         //инициализация вьюшек
-        initViews()
+        initViews(view)
         addChangeTextListeners()
 
         //настройка экрана, если до этого все ок
@@ -99,7 +102,7 @@ class ShopItemFragment : Fragment() {
 
     private fun observeViewModel() {
         //подписываемся на объект ошибки числа
-        viewModel.errorInputCount.observe(this) {
+        viewModel.errorInputCount.observe(viewLifecycleOwner) {
             val message = if (it) {
                 getString(R.string.error_input_count)
             } else {
@@ -108,7 +111,7 @@ class ShopItemFragment : Fragment() {
             tilCount.error = message
         }
         //подписываемся на объект ошибки ввода имени
-        viewModel.errorInputName.observe(this) {
+        viewModel.errorInputName.observe(viewLifecycleOwner) {
             val message = if (it) {
                 getString(R.string.error_input_name)
             } else {
@@ -117,8 +120,9 @@ class ShopItemFragment : Fragment() {
             tilName.error = message
         }
         //закрываем экран
-        viewModel.shouldCloseScreen.observe(this) {
-            finish()
+        viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
+            //метод эквивалентен нажатию кнопки назад
+            activity?.onBackPressed()
         }
     }
 
@@ -147,34 +151,28 @@ class ShopItemFragment : Fragment() {
     /**
      * проверяем входящие параметры интента
      */
-    private fun parseIntent() {
-        if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {
+    //чтобы показать франмент интенты не используются
+    private fun parseParams() {
+        if (screenMode != MODE_EDIT && screenMode != MODE_ADD) {
             throw RuntimeException("Param screen mode is absent")
         }
-        val mode = intent.getStringExtra(EXTRA_SCREEN_MODE)
-        if (mode != MODE_ADD && mode != MODE_EDIT) {
-            throw RuntimeException("Param screen mode is unknown $mode")
-        }
-        screenMode = mode
 
-        if (screenMode == MODE_EDIT) {
-            if (!intent.hasExtra(EXTRA_SHOP_ITEM_ID)) {
-                throw RuntimeException("Param EXTRA_SHOP_ITEM_ID is absent")
-            }
-            shopItemId = intent.getIntExtra(EXTRA_SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
+        if (screenMode == MODE_EDIT && shopItemId == ShopItem.UNDEFINED_ID) {
 
+            throw RuntimeException("Param EXTRA_SHOP_ITEM_ID is absent")
         }
     }
+
 
     /**
      * инициализация вьюшек
      */
-    private fun initViews() {
-        tilName = findViewById(R.id.til_name)
-        tilCount = findViewById(R.id.til_count)
-        etName = findViewById(R.id.et_name)
-        etCount = findViewById(R.id.et_count)
-        buttonSave = findViewById(R.id.save_button)
+    private fun initViews(view: View) {
+        tilName = view.findViewById(R.id.til_name)
+        tilCount = view.findViewById(R.id.til_count)
+        etName = view.findViewById(R.id.et_name)
+        etCount = view.findViewById(R.id.et_count)
+        buttonSave = view.findViewById(R.id.save_button)
 
     }
 
@@ -184,6 +182,20 @@ class ShopItemFragment : Fragment() {
         private const val MODE_ADD = "mode_add"
         private const val EXTRA_SHOP_ITEM_ID = "extra_shop_item_id"
         private const val MODE_UNKNOWN = ""
+
+        /**
+         * фабричные статические методы для создания новых объектов c MODE_ADD
+         */
+        fun newInstanceAddItem(): ShopItemFragment{
+            return ShopItemFragment(MODE_ADD)
+        }
+        /**
+         * фабричные статические методы для создания новых объектов c MODE_EDIT
+         */
+        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment{
+            return ShopItemFragment(MODE_EDIT, shopItemId)
+        }
+
 
         /**
          * добавление экрана приложения с добавлением списка покупок
