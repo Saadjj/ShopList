@@ -1,10 +1,6 @@
 package com.bignerdranch.android.shoplist.presentation
 
-import android.content.Context
-import android.content.Intent
-
 import android.os.Bundle
-
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -18,21 +14,23 @@ import com.bignerdranch.android.shoplist.R
 import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
-class ShopItemFragment(
-    private val screenMode: String = MODE_UNKNOWN,
-    private val shopItemId: Int = ShopItem.UNDEFINED_ID
-) : Fragment(
-
-) {
+class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
-
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
     private lateinit var etName: EditText
     private lateinit var etCount: EditText
     private lateinit var buttonSave: Button
 
+    private var screenMode: String = MODE_UNKNOWN
+    private var shopItemId: Int = ShopItem.UNDEFINED_ID
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        //проверка
+        parseParams()
+    }
 
     //из макета создаем вью, похожий метод был у Recicler view
     override fun onCreateView(
@@ -48,8 +46,6 @@ class ShopItemFragment(
     //вьюшка уже точно создана и  сней можно спокойно работать
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //проверка
-        parseParams()
         //инициализация вьюмодели
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
         //инициализация вьюшек
@@ -153,15 +149,29 @@ class ShopItemFragment(
      */
     //чтобы показать франмент интенты не используются
     private fun parseParams() {
-        if (screenMode != MODE_EDIT && screenMode != MODE_ADD) {
+        //здесь изпольуется метод, возвращающий ненулабельный тип, если приложение упадет то ок
+        //получаем переданные аргументы
+        val args=requireArguments()
+        //проверки на всяко разно
+        if (!args.containsKey(SCREEN_MODE)) {
             throw RuntimeException("Param screen mode is absent")
         }
+        val mode = args.getString(SCREEN_MODE)
+        if (mode != MODE_ADD && mode != MODE_EDIT) {
+            throw RuntimeException("Param screen mode is unknown $mode")
+        }
+        screenMode = mode
+        if (screenMode == MODE_EDIT) {
+            if (!args.containsKey(SHOP_ITEM_ID)){
+                throw RuntimeException("Param EXTRA_SHOP_ITEM_ID is absent")
+            }
+                shopItemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
 
-        if (screenMode == MODE_EDIT && shopItemId == ShopItem.UNDEFINED_ID) {
 
-            throw RuntimeException("Param EXTRA_SHOP_ITEM_ID is absent")
         }
     }
+
+
 
 
     /**
@@ -177,46 +187,42 @@ class ShopItemFragment(
     }
 
     companion object {
-        private const val EXTRA_SCREEN_MODE = "extra_mode"
+        private const val SCREEN_MODE = "extra_mode"
         private const val MODE_EDIT = "mode_edit"
         private const val MODE_ADD = "mode_add"
-        private const val EXTRA_SHOP_ITEM_ID = "extra_shop_item_id"
+        private const val SHOP_ITEM_ID = "extra_shop_item_id"
         private const val MODE_UNKNOWN = ""
 
         /**
          * фабричные статические методы для создания новых объектов c MODE_ADD
          */
-        fun newInstanceAddItem(): ShopItemFragment{
-            return ShopItemFragment(MODE_ADD)
+        fun newInstanceAddItem(): ShopItemFragment {
+            //не пугаться Bundle(), это мапа
+            val args = Bundle().apply {
+                putString(SCREEN_MODE, MODE_ADD)
+            }
+//            args.putString(SCREEN_MODE, MODE_ADD)
+            val fragment = ShopItemFragment().apply {
+                arguments = args
+            }
+//            fragment.arguments = args
+            return fragment
         }
+
         /**
          * фабричные статические методы для создания новых объектов c MODE_EDIT
          */
-        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment{
-            return ShopItemFragment(MODE_EDIT, shopItemId)
+        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment {
+            val args = Bundle().apply {
+                putString(SCREEN_MODE, MODE_EDIT)
+                putInt(SHOP_ITEM_ID,shopItemId)
+            }
+            val fragment=ShopItemFragment().apply{
+                arguments=args
+            }
+            return fragment
         }
 
 
-        /**
-         * добавление экрана приложения с добавлением списка покупок
-         */
-        fun newIntentAddItem(context: Context): Intent {
-            val intent = Intent(context, ShopItemActivity::class.java)
-            //кладем в интент необходимые параметры
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_ADD)
-            return intent
-
-        }
-
-        /**
-         * добавление экрана приложения с редактированием списка покупок
-         */
-        fun newIntentEditItem(context: Context, shopItemId: Int): Intent {
-
-            val intent = Intent(context, ShopItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_EDIT)
-            intent.putExtra(EXTRA_SHOP_ITEM_ID, shopItemId)
-            return intent
-        }
     }
 }

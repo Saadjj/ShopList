@@ -3,6 +3,8 @@ package com.bignerdranch.android.shoplist.presentation
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -17,12 +19,18 @@ class MainActivity : AppCompatActivity() {
     // ссылка на адаптер
     private lateinit var shopListAdapter: ShopListAdapter
 
+    //неинициализированная ссылка на экран в альбомной ориентации
+    private var shopItemContainer: FragmentContainerView? = null
+
     //    добавление отклика на свайп через анонимный объект
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //установка макета
         setContentView(R.layout.activity_main)
+        //такой id есть только в макете с альбомной ориентации
+        shopItemContainer = findViewById(R.id.shop_item_container)
+
         setupRecyclerView()
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
@@ -39,6 +47,17 @@ class MainActivity : AppCompatActivity() {
             //запускаем
             startActivity(intent)
         }
+    }
+
+    private fun isOnPaneMode(): Boolean {
+        return shopItemContainer == null
+        }
+
+
+    private fun launchFragment(fragment:Fragment){
+        supportFragmentManager.beginTransaction()
+            .add(R.id.shop_item_container,fragment)
+            .commit()
     }
 
     /**
