@@ -42,21 +42,38 @@ class MainActivity : AppCompatActivity() {
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         //добавление слушателя кликов
         buttonAddItem.setOnClickListener {
-            //создание нового экрана
-            val intent = ShopItemActivity.newIntentAddItem(this)
-            //запускаем
-            startActivity(intent)
+            //если в альбомной ориентации то все как обычно, вызывается активити
+            if(isOnPaneMode()){
+                //создание нового экрана
+                val intent = ShopItemActivity.newIntentAddItem(this)
+                //запускаем
+                startActivity(intent)
+                //иначе запускаем фрагмент
+            }else{
+                launchFragment(ShopItemFragment.newInstanceAddItem())
+            }
+
         }
     }
 
+    /**
+     * услованая проверка на то в режиме ли одной панели запущен экран
+     */
     private fun isOnPaneMode(): Boolean {
         return shopItemContainer == null
         }
 
-
+    /**
+     * метод запуска фрагмента
+     */
     private fun launchFragment(fragment:Fragment){
+        //удаление фрагмента из стека если фрагмент там уже был
+        supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container,fragment)
+                //жобавляем в стека ради нормально работающей кнопки сейва
+            .addToBackStack(null)
+                //чтобы не было 2-х фрагментов в одном контейнере
+            .replace(R.id.shop_item_container,fragment)
             .commit()
     }
 
@@ -123,11 +140,16 @@ class MainActivity : AppCompatActivity() {
      */
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = {
-            Log.d("MainActivity", it.toString())
-            //создание нового экрана
-            val intent = ShopItemActivity.newIntentEditItem(this, it.id)
-            //запускаем
-            startActivity(intent)
+            if(isOnPaneMode()){
+                //создание нового экрана через активити
+                val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+                //запускаем
+                startActivity(intent)
+                //иначе создание нового фрагмента
+            }else{
+                launchFragment(ShopItemFragment.newInstanceEditItem(it.id))
+            }
+
         }
     }
 

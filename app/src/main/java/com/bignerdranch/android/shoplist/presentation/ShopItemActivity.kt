@@ -16,15 +16,7 @@ import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemActivity : AppCompatActivity() {
-//
-//    private lateinit var viewModel: ShopItemViewModel
-//
-//    private lateinit var tilName: TextInputLayout
-//    private lateinit var tilCount: TextInputLayout
-//    private lateinit var etName: EditText
-//    private lateinit var etCount: EditText
-//    private lateinit var buttonSave: Button
-//
+
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
 
@@ -33,17 +25,14 @@ class ShopItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_shop_item)
         //проверка
         parseIntent()
-//        //инициализация вьюмодели
-//        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
-//        //инициализация вьюшек
-//        initViews()
-//        addChangeTextListeners()
-//
-//        //настройка экрана, если до этого все ок
-        launchRightMode()
-//        observeViewModel()
+       //настройка экрана,  проверяем не было ли его уже создано чтобы не спамить вызовы
+        if(savedInstanceState==null){
+            launchRightMode()
+        }
+
+
     }
-//
+
     private fun launchRightMode() {
       val fragment =   when (screenMode) {
             MODE_EDIT -> ShopItemFragment.newInstanceEditItem(shopItemId)
@@ -53,88 +42,11 @@ class ShopItemActivity : AppCompatActivity() {
         }
     //метод для работы с фрагментами
     supportFragmentManager.beginTransaction()
-        .add(R.id.shop_item_container, fragment)
+            //используем replace вместо add чтобы oncreate реже вызывался(он замщается )
+        .replace(R.id.shop_item_container, fragment)
         .commit()
     }
-//
-//
-//    private fun addChangeTextListeners(){
-//        //при изменении текста убираем исключение от пользователя
-//        etName.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//
-//            }
-//
-//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                viewModel.resetErrorInputName()
-//            }
-//
-//            override fun afterTextChanged(p0: Editable?) {
-//
-//            }
-//        })
-//
-//        etCount.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//
-//            }
-//
-//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                viewModel.resetErrorInputCount()
-//            }
-//
-//            override fun afterTextChanged(p0: Editable?) {
-//
-//            }
-//        })
-//    }
-//    private fun observeViewModel(){
-//        //подписываемся на объект ошибки числа
-//        viewModel.errorInputCount.observe(this) {
-//            val message = if (it) {
-//                getString(R.string.error_input_count)
-//            } else {
-//                null
-//            }
-//            tilCount.error = message
-//        }
-//        //подписываемся на объект ошибки ввода имени
-//        viewModel.errorInputName.observe(this) {
-//            val message = if (it) {
-//                getString(R.string.error_input_name)
-//            } else {
-//                null
-//            }
-//            tilName.error = message
-//        }
-//        //закрываем экран
-//        viewModel.shouldCloseScreen.observe(this) {
-//            finish()
-//        }
-//    }
-//
-//    //подписаться на нужын еобъеты лайвдаты
-//    private fun launchEditMode() {
-//        //получение собственно итема
-//        viewModel.getShopItem(shopItemId)
-//        //а теперь подписаны на него, и устанавливаем нужные значения
-//        viewModel.shopItem.observe(this) {
-//            etName.setText(it.name)
-//            etCount.setText(it.count.toString())
-//        }
-//        buttonSave.setOnClickListener() {
-//            viewModel.editShopItem(etName.text?.toString(), etCount.text?.toString())
-//        }
-//    }
-//
-//    private fun launchAddMode() {
-//        //мощь
-//        buttonSave.setOnClickListener() {
-//            viewModel.addShopItem(etName.text?.toString(), etCount.text?.toString())
-//        }
-//    }
-//
-//
+
 //    /**
 //     * проверяем входящие параметры интента
 //     */
@@ -156,19 +68,7 @@ class ShopItemActivity : AppCompatActivity() {
 
         }
     }
-//
-//    /**
-//     * инициализация вьюшек
-//     */
-//    private fun initViews() {
-//        tilName = findViewById(R.id.til_name)
-//        tilCount = findViewById(R.id.til_count)
-//        etName = findViewById(R.id.et_name)
-//        etCount = findViewById(R.id.et_count)
-//        buttonSave = findViewById(R.id.save_button)
-//
-//    }
-//
+
     companion object {
         private const val EXTRA_SCREEN_MODE = "extra_mode"
         private const val MODE_EDIT = "mode_edit"
