@@ -1,5 +1,6 @@
 package com.bignerdranch.android.shoplist.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +16,8 @@ import com.bignerdranch.android.shoplist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemFragment : Fragment() {
+    //переменная для интерфейса, связующего активити и фрагмент
+  private  lateinit var onEditingFinishedListener:OnEditingFinishedListener
 
     private lateinit var viewModel: ShopItemViewModel
     private lateinit var tilName: TextInputLayout
@@ -30,6 +33,16 @@ class ShopItemFragment : Fragment() {
         super.onCreate(savedInstanceState)
         //проверка
         parseParams()
+    }
+//контекст это та активити к которой прикреплен франмент
+    //этот метод вызывается когда метод прикрепляется к активити
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+    if(context is OnEditingFinishedListener){
+        onEditingFinishedListener=context
+    }else{
+        throw RuntimeException("Activity must implement OnEditingFinishedListener")
+    }
     }
 
     //из макета создаем вью, похожий метод был у Recicler view
@@ -118,7 +131,7 @@ class ShopItemFragment : Fragment() {
         //закрываем экран
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
             //метод эквивалентен нажатию кнопки назад
-            activity?.onBackPressed()
+            onEditingFinishedListener.onEditingFinished()
         }
     }
 
@@ -184,6 +197,11 @@ class ShopItemFragment : Fragment() {
         etCount = view.findViewById(R.id.et_count)
         buttonSave = view.findViewById(R.id.save_button)
 
+    }
+
+    interface OnEditingFinishedListener{
+
+        fun onEditingFinished(){}
     }
 
     companion object {
