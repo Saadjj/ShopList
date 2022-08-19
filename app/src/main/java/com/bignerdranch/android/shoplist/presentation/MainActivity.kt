@@ -1,7 +1,7 @@
 package com.bignerdranch.android.shoplist.presentation
 
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -42,21 +42,42 @@ class MainActivity : AppCompatActivity() {
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         //добавление слушателя кликов
         buttonAddItem.setOnClickListener {
-            //создание нового экрана
-            val intent = ShopItemActivity.newIntentAddItem(this)
-            //запускаем
-            startActivity(intent)
+            //если экран в обычной ориентации то все по старому
+            if (isOnPaneMode()) {
+                //создание нового экрана
+                val intent = ShopItemActivity.newIntentAddItem(this)
+                //запускаем
+                startActivity(intent)
+                //а если в альбомной то запускаем наш фрагмент
+            } else {
+                launchFragment(ShopItemFragment.newInstanceAddItem())
+            }
+
         }
     }
 
+    fun onEditingFinished() {
+    Toast.makeText(this,"Success", Toast.LENGTH_SHORT).show()
+        supportFragmentManager.popBackStack()
+    }
+
+    /**
+     * в режиме одной ли панели экран
+     */
     private fun isOnPaneMode(): Boolean {
         return shopItemContainer == null
-        }
+    }
 
-
-    private fun launchFragment(fragment:Fragment){
+    /**
+     * запуска фрагмента
+     */
+    private fun launchFragment(fragment: Fragment) {
+        //удаление ииз стека последнего фрагмента для корректной работы кнопки возврата
+        supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container,fragment)
+            .add(R.id.shop_item_container, fragment)
+            //добавляем в стек для того чтобы корректно работала кнопка назад
+            .addToBackStack(null)
             .commit()
     }
 
@@ -123,11 +144,17 @@ class MainActivity : AppCompatActivity() {
      */
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = {
-            Log.d("MainActivity", it.toString())
-            //создание нового экрана
-            val intent = ShopItemActivity.newIntentEditItem(this, it.id)
-            //запускаем
-            startActivity(intent)
+            //если обычная раскалдка то запускаем активити
+            if (isOnPaneMode()) {
+                //создание нового экрана
+                val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+                //запускаем
+                startActivity(intent)
+                //иначе (в альбомной) запускаем наш фрагмент
+            } else {
+                launchFragment(ShopItemFragment.newInstanceEditItem(it.id))
+            }
+
         }
     }
 

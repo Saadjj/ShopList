@@ -16,6 +16,8 @@ import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemFragment : Fragment() {
 
+    private val onEditingFinishedListener:OnEditingFinishedListener?=null
+
     private lateinit var viewModel: ShopItemViewModel
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
@@ -118,7 +120,7 @@ class ShopItemFragment : Fragment() {
         //закрываем экран
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
             //метод эквивалентен нажатию кнопки назад
-            activity?.onBackPressed()
+            (activity as MainActivity).onEditingFinished()
         }
     }
 
@@ -170,10 +172,6 @@ class ShopItemFragment : Fragment() {
 
         }
     }
-
-
-
-
     /**
      * инициализация вьюшек
      */
@@ -185,6 +183,18 @@ class ShopItemFragment : Fragment() {
         buttonSave = view.findViewById(R.id.save_button)
 
     }
+
+    /**
+     * интерфейс для связи активити и фрагментов
+     */
+    interface OnEditingFinishedListener{
+
+        fun onEditingFinished(){
+
+        }
+    }
+
+
 
     companion object {
         private const val SCREEN_MODE = "extra_mode"
