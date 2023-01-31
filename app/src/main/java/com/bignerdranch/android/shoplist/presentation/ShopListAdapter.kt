@@ -3,8 +3,13 @@ package com.bignerdranch.android.shoplist.presentation
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import com.bignerdranch.android.shoplist.R
+import com.bignerdranch.android.shoplist.databinding.ItemShopDisabledBinding
+import com.bignerdranch.android.shoplist.databinding.ItemShopEnabledBinding
+import com.bignerdranch.android.shoplist.databinding.ItemShopEnabledBindingImpl
 import com.bignerdranch.android.shoplist.domain.ShopItem
 
 class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCallback()) {
@@ -36,27 +41,41 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopItemDiffCa
             else -> throw RuntimeException("UnknownViewType:$viewType")
         }
 
-        val view =
-            LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ShopItemViewHolder(view)
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            layout,
+            parent,
+            false
+        )
+        return ShopItemViewHolder(binding)
     }
 
     // как вставить значения внутри него(привязка)
     override fun onBindViewHolder(viewHolder: ShopItemViewHolder, position: Int) {
 //        Log.d("ShopListAdapter", "onBindViewHolder,count:${++count}")
         val shopItem = getItem(position)
+        val binding = viewHolder.binding
         //а вообще происходит установка слушателей кликов(читай наблюдателей)
         //эт тож моя шляпа
-        viewHolder.view.setOnClickListener {
+        binding.root.setOnClickListener {
             onShopItemClickListener?.invoke(shopItem)
             true
         }
-        viewHolder.view.setOnLongClickListener {
+        binding.root.setOnLongClickListener {
             onShopItemLongClickListener?.invoke(shopItem)
             true
         }
-        viewHolder.tvName.text = shopItem.name
-        viewHolder.tvCount.text = shopItem.count.toString()
+        when(binding) {
+            is ItemShopDisabledBinding->{
+                binding.tvName.text = shopItem.name
+                binding.tvCount.text = shopItem.count.toString()
+            }
+            is ItemShopEnabledBinding ->{
+                binding.tvName.text = shopItem.name
+                binding.tvCount.text = shopItem.count.toString()
+            }
+        }
+
     }
 
     //определение типа вьютайпа
